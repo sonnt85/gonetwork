@@ -267,3 +267,25 @@ func PingMac(ip net.IP, ifi *net.Interface, timeouts ...time.Duration) (string, 
 	}
 	return mac.String(), nil
 }
+
+func PingMacAnyDevice(ip net.IP, ifi *net.Interface, timeouts ...time.Duration) (string, error) {
+	timeout := time.Millisecond * 200
+	if len(timeouts) != 0 {
+		timeout = timeouts[0]
+	}
+	c, err := Dial(ifi)
+	if err != nil {
+		return "", err
+	}
+	defer c.Close()
+
+	if err := c.SetDeadline(time.Now().Add(timeout)); err != nil {
+		return "", err
+	}
+
+	mac, err := c.Resolve(ip)
+	if err != nil {
+		return "", err
+	}
+	return mac.String(), nil
+}
