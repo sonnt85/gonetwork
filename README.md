@@ -1,5 +1,7 @@
 # gonetwork
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/sonnt85/gonetwork.svg)](https://pkg.go.dev/github.com/sonnt85/gonetwork)
+
 Low-level networking library for Go — ARP, Ethernet II frames, and raw packet sockets.
 
 ## Installation
@@ -85,7 +87,9 @@ func main() {
 - `(*Client).SetDeadline/SetReadDeadline/SetWriteDeadline(t time.Time) error` — deadline control
 - `GetMac(ip interface{}, timeouts ...time.Duration) (string, error)` — resolve MAC from string or `net.IP`
 - `PingMac(ip net.IP, ifi *net.Interface, timeouts ...time.Duration) (string, error)` — resolve MAC on a specific interface
-- `NewPacket(op Operation, srcHW, dstHW net.HardwareAddr, srcIP, dstIP net.IP) (*Packet, error)` — constructs an ARP packet
+- `PingMacAnyDevice(ip net.IP, ifi *net.Interface, timeouts ...time.Duration) (string, error)` — resolve MAC, trying all suitable devices if the specified interface fails
+- `(*Client).HardwareAddr() net.HardwareAddr` — return the hardware address of the client's interface
+- `NewPacket(op Operation, srcHW net.HardwareAddr, srcIP net.IP, dstHW net.HardwareAddr, dstIP net.IP) (*Packet, error)` — constructs an ARP packet
 
 ### `ethernet`
 
