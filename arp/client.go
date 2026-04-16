@@ -267,3 +267,73 @@ func PingMac(ip net.IP, ifi *net.Interface, timeouts ...time.Duration) (string, 
 	}
 	return mac.String(), nil
 }
+
+func GetMac(ip interface{}, timeouts ...time.Duration) (string, error) {
+	timeout := time.Millisecond * 200
+	if len(timeouts) != 0 {
+		timeout = timeouts[0]
+	}
+
+	var ipToResolve net.IP
+	switch v := ip.(type) {
+	case string:
+		ipToResolve = net.ParseIP(v)
+		if ipToResolve == nil {
+			return "", errors.New("invalid IP address")
+		}
+	case net.IP:
+		ipToResolve = v
+	default:
+		return "", errors.New("unsupported IP type")
+	}
+
+	interfaces, err := net.Interfaces()
+	if err != nil {
+		return "", err
+	}
+	var reterr error
+	for _, ifi := range interfaces {
+		if (ifi.Flags&net.FlagRunning) == 0 && (ifi.Flags&net.FlagLoopback) != 0 {
+			continue
+		}
+		c, err := Dial(&ifi)
+		if err != nil {
+			return "", err
+		}
+		defer c.Close()
+
+		if err := c.SetDeadline(time.Now().Add(timeout)); err != nil {
+			return "", err
+		}
+
+		mac, err := c.Resolve(ipToResolve)
+		if err != nil {
+			reterr = errors.Join(reterr, err)
+			continue //return "", err
+		}
+		return mac.String(), nil
+	}
+	return "", reterr
+}
+
+func PingMacAnyDevice(ip net.IP, ifi *net.Interface, timeouts ...time.Duration) (string, error) {
+	timeout := time.Millisecond * 200
+	if len(timeouts) != 0 {
+		timeout = timeouts[0]
+	}
+	c, err := Dial(ifi)
+	if err != nil {
+		return "", err
+	}
+	defer c.Close()
+
+	if err := c.SetDeadline(time.Now().Add(timeout)); err != nil {
+		return "", err
+	}
+
+	mac, err := c.Resolve(ip)
+	if err != nil {
+		return "", err
+	}
+	return mac.String(), nil
+}
