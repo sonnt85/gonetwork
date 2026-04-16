@@ -102,6 +102,10 @@ func main() {
 - `(*Conn).SetPromiscuous(bool) error` — toggle promiscuous mode
 - `(*Conn).Stats() (*Stats, error)` — retrieve packet/drop counts (Linux only)
 
+## Author
+
+**sonnt85** — [thanhson.rf@gmail.com](mailto:thanhson.rf@gmail.com)
+
 ## License
 
 MIT License - see [LICENSE](LICENSE) for details.
